@@ -156,7 +156,9 @@ ReconstructionEngine_sequentialSfM::ReconstructionEngine_sequentialSfM(
 
 bool ReconstructionEngine_sequentialSfM::process()
 {
+  ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
   initializePyramidScoring();
+  ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
 
   if(fuseMatchesIntoTracks() == 0)
   {
@@ -166,17 +168,23 @@ bool ReconstructionEngine_sequentialSfM::process()
   // initial pair choice
   if(_sfmData.getPoses().empty())
   {
-    std::vector<Pair> initialImagePairCandidates = getInitialImagePairsCandidates();
-    createInitialReconstruction(initialImagePairCandidates);
+      ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
+      std::vector<Pair> initialImagePairCandidates = getInitialImagePairsCandidates();
+      ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
+      createInitialReconstruction(initialImagePairCandidates);
+      ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
   }
   else if(_sfmData.getLandmarks().empty())
   {
+      ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
     std::set<IndexT> prevReconstructedViews = _sfmData.getValidViews();
     triangulate({}, prevReconstructedViews);
     bundleAdjustment(prevReconstructedViews);
+    ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
   }
   else
   {
+      ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
     // If we have already reconstructed landmarks, we need to recognize the corresponding tracks
     // and update the landmarkIds accordingly.
     // Note: each landmark has a corresponding track with the same id (landmarkId == trackId).
@@ -192,13 +200,17 @@ bool ReconstructionEngine_sequentialSfM::process()
         _localStrategyGraph->updateRigEdgesToTheGraph(_sfmData);
       }
     }
+    ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
   }
 
+  ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
   // reconstruction
   const double elapsedTime = incrementalReconstruction();
 
+  ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
   exportStatistics(elapsedTime);
 
+  ALICEVISION_LOG_DEBUG("ReconstructionEngine_sequentialSfM::process " << __LINE__);
   return !_sfmData.getPoses().empty();
 }
 

@@ -37,29 +37,36 @@ using namespace aliceVision::sfmData;
 // Test a scene where all the camera intrinsics are known
 BOOST_AUTO_TEST_CASE(SEQUENTIAL_SFM_Known_Intrinsics)
 {
+    ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   const int nviews = 6;
   const int npoints = 128;
   const NViewDatasetConfigurator config;
   const NViewDataSet d = NRealisticCamerasRing(nviews, npoints, config);
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   // Translate the input dataset to a SfMData scene
   const SfMData sfmData = getInputScene(d, config, PINHOLE_CAMERA);
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   // Remove poses and structure
   SfMData sfmData2 = sfmData;
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   sfmData2.getPoses().clear();
   sfmData2.structure.clear();
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   ReconstructionEngine_sequentialSfM::Params sfmParams;
   sfmParams.userInitialImagePair = Pair(0, 1);
   sfmParams.lockAllIntrinsics = true;
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   ReconstructionEngine_sequentialSfM sfmEngine(
     sfmData2,
     sfmParams,
     "./",
     "./Reconstruction_Report.html");
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   // Add a tiny noise in 2D observations to make data more realistic
   std::normal_distribution<double> distribution(0.0,0.5);
 
@@ -67,21 +74,30 @@ BOOST_AUTO_TEST_CASE(SEQUENTIAL_SFM_Known_Intrinsics)
   feature::FeaturesPerView featuresPerView;
   generateSyntheticFeatures(featuresPerView, feature::EImageDescriberType::UNKNOWN, sfmData, distribution);
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   matching::PairwiseMatches pairwiseMatches;
   generateSyntheticMatches(pairwiseMatches, sfmData, feature::EImageDescriberType::UNKNOWN);
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   // Configure data provider (Features and Matches)
   sfmEngine.setFeatures(&featuresPerView);
   sfmEngine.setMatches(&pairwiseMatches);
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   BOOST_CHECK (sfmEngine.process());
 
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   const double residual = RMSE(sfmEngine.getSfMData());
   ALICEVISION_LOG_DEBUG("RMSE residual: " << residual);
   BOOST_CHECK_LT(residual, 0.5);
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   BOOST_CHECK_EQUAL(sfmEngine.getSfMData().getPoses().size(), nviews);
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   BOOST_CHECK_EQUAL(sfmEngine.getSfMData().getLandmarks().size(), npoints);
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
 }
+
+#if 0
 
 // Test a scene where only the two first camera have known intrinsics
 BOOST_AUTO_TEST_CASE(SEQUENTIAL_SFM_Partially_Known_Intrinsics)
@@ -194,3 +210,4 @@ BOOST_AUTO_TEST_CASE(SEQUENTIAL_SFM_Known_Rig)
   BOOST_CHECK_EQUAL(sfmEngine.getSfMData().getLandmarks().size(), nbPoints);
 }
 
+#endif
