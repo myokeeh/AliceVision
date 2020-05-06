@@ -50,6 +50,17 @@ BOOST_AUTO_TEST_CASE(SEQUENTIAL_SFM_Known_Intrinsics)
   ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   // Remove poses and structure
   SfMData sfmData2 = sfmData;
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics: sfmData nb intrinsics: " << sfmData.intrinsics.size());
+  for(const auto intrinsicIt : sfmData.intrinsics)
+  {
+      ALICEVISION_LOG_DEBUG(" sfmData - intrinsic: " << intrinsicIt.second->w() << "x" << intrinsicIt.second->h());
+  }
+
+  ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics: sfmData2 nb intrinsics: " << sfmData2.intrinsics.size());
+  for(const auto intrinsicIt: sfmData2.intrinsics)
+  {
+      ALICEVISION_LOG_DEBUG(" sfmData2 - intrinsic: " << intrinsicIt.second->w() << "x" << intrinsicIt.second->h());
+  }
   ALICEVISION_LOG_DEBUG("TEST_SEQUENTIAL_SFM_Known_Intrinsics " << __LINE__);
   sfmData2.getPoses().clear();
   sfmData2.structure.clear();

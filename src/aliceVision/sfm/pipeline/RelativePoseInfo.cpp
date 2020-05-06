@@ -23,15 +23,18 @@ bool estimate_Rt_fromE(const Mat3 & K1, const Mat3 & K2,
   const Mat3 & E, const std::vector<size_t> & vec_inliers,
   Mat3 * R, Vec3 * t)
 {
+    ALICEVISION_LOG_DEBUG("estimate_Rt_fromE:  " << __LINE__);
   // Accumulator to find the best solution
   std::vector<size_t> f(4, 0);
 
   std::vector<Mat3> Rs;  // Rotation matrix.
   std::vector<Vec3> ts;  // Translation matrix.
 
+  ALICEVISION_LOG_DEBUG("estimate_Rt_fromE:  " << __LINE__);
   // Recover best rotation and translation from E.
   motionFromEssential(E, &Rs, &ts);
 
+  ALICEVISION_LOG_DEBUG("estimate_Rt_fromE:  " << __LINE__);
   //-> Test the 4 solutions will all the points
   assert(Rs.size() == 4);
   assert(ts.size() == 4);
@@ -41,6 +44,7 @@ bool estimate_Rt_fromE(const Mat3 & K1, const Mat3 & K2,
   Vec3 t1 = Vec3::Zero();
   P_from_KRt(K1, R1, t1, &P1);
 
+  ALICEVISION_LOG_DEBUG("estimate_Rt_fromE:  " << __LINE__);
   for (unsigned int i = 0; i < 4; ++i)
   {
     const Mat3 &R2 = Rs[i];
@@ -61,6 +65,7 @@ bool estimate_Rt_fromE(const Mat3 & K1, const Mat3 & K2,
       }
     }
   }
+  ALICEVISION_LOG_DEBUG("estimate_Rt_fromE:  " << __LINE__);
   // Check the solution:
   const std::vector<size_t>::iterator iter = std::max_element(f.begin(), f.end());
   if (*iter == 0)
@@ -72,6 +77,7 @@ bool estimate_Rt_fromE(const Mat3 & K1, const Mat3 & K2,
   (*R) = Rs[index];
   (*t) = ts[index];
 
+  ALICEVISION_LOG_DEBUG("estimate_Rt_fromE:  " << __LINE__);
   return true;
 }
 
@@ -88,27 +94,32 @@ bool robustRelativePose(const Mat3& K1, const Mat3& K2,
   // define the kernel
   using KernelT = multiview::RelativePoseKernel_K<SolverT, multiview::relativePose::FundamentalEpipolarDistanceError, robustEstimation::Mat3Model>;
 
+  ALICEVISION_LOG_DEBUG("robustRelativePose:  " << __LINE__);
   KernelT kernel(x1, size_ima1.first, size_ima1.second,
                  x2, size_ima2.first, size_ima2.second, K1, K2);
 
+  ALICEVISION_LOG_DEBUG("robustRelativePose:  " << __LINE__);
 
   robustEstimation::Mat3Model model;
 
+  ALICEVISION_LOG_DEBUG("robustRelativePose:  " << __LINE__);
   // robustly estimation of the Essential matrix and its precision
   const std::pair<double,double> acRansacOut = robustEstimation::ACRANSAC(kernel,
                                                                           relativePose_info.vec_inliers,
                                                                           max_iteration_count,
-                                                                          &model,
-                                                                          relativePose_info.initial_residual_tolerance);
+                                                                          &model, relativePose_info.initial_residual_tolerance);
+  ALICEVISION_LOG_DEBUG("robustRelativePose:  " << __LINE__);
   relativePose_info.essential_matrix = model.getMatrix();
   relativePose_info.found_residual_precision = acRansacOut.first;
 
+  ALICEVISION_LOG_DEBUG("robustRelativePose:  " << __LINE__);
   if(relativePose_info.vec_inliers.size() < kernel.getMinimumNbRequiredSamples() * ALICEVISION_MINIMUM_SAMPLES_COEF)
   {
     ALICEVISION_LOG_INFO("robustRelativePose: no sufficient coverage (the model does not support enough samples): " << relativePose_info.vec_inliers.size());
     return false; // no sufficient coverage (the model does not support enough samples)
   }
 
+  ALICEVISION_LOG_DEBUG("robustRelativePose:  " << __LINE__);
   // estimation of the relative poses
   Mat3 R;
   Vec3 t;
@@ -119,6 +130,7 @@ bool robustRelativePose(const Mat3& K1, const Mat3& K2,
     ALICEVISION_LOG_INFO("robustRelativePose: cannot find a valid [R|t] couple that makes the inliers in front of the camera.");
     return false; // cannot find a valid [R|t] couple that makes the inliers in front of the camera.
   }
+  ALICEVISION_LOG_DEBUG("robustRelativePose:  " << __LINE__);
 
   // Store [R|C] for the second camera, since the first camera is [Id|0]
   relativePose_info.relativePose = geometry::Pose3(R, -R.transpose() * t);
