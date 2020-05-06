@@ -169,6 +169,9 @@ void Essential5PSolver::solve(const Mat& x1, const Mat& x2, std::vector<robustEs
   assert(x1.rows() == x2.rows());
   assert(x1.cols() == x2.cols());
 
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  x1 " << x1);
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  x2 " << x2);
+
   ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   // step 1: Nullspace Extraction.
   const Eigen::Matrix<double, 9, 4> EBasis = fivePointsNullspaceBasis(x1, x2);

@@ -88,6 +88,8 @@ bool robustRelativePose(const Mat3& K1, const Mat3& K2,
                         const std::pair<size_t, size_t> & size_ima2,
                         const size_t max_iteration_count)
 {
+    ALICEVISION_LOG_DEBUG("robustRelativePose:  x1 " << x1);
+    ALICEVISION_LOG_DEBUG("robustRelativePose:  x2 " << x2);
   // use the 5 point solver to estimate E
   using SolverT = multiview::relativePose::Essential5PSolver;
 
