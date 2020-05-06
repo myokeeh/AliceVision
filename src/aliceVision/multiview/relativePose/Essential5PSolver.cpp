@@ -180,6 +180,9 @@ void Essential5PSolver::solve(const Mat& x1, const Mat& x2, std::vector<robustEs
   ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   // step 3: Gauss-Jordan Elimination (done thanks to a LU decomposition).
   typedef Eigen::Matrix<double, 10, 10> Mat10;
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  EConstraints " << EConstraints);
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  EConstraints " << (EConstraints.block<10, 10>(0, 0)));
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   Eigen::FullPivLU<Mat10> c_lu(EConstraints.block<10, 10>(0, 0));
   ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   const Mat10 M = c_lu.solve(EConstraints.block<10, 10>(0, 10));
