@@ -148,29 +148,39 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
                                    typename Kernel::ModelT* model = nullptr,
                                    double precision = std::numeric_limits<double>::infinity())
 {
+    ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   vec_inliers.clear();
 
+    ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   const std::size_t sizeSample = kernel.getMinimumNbRequiredSamples();
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   const std::size_t nData = kernel.nbSamples();
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   if (nData <= (std::size_t)sizeSample)
     return std::make_pair(0.0,0.0);
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   const double maxThreshold = (precision==std::numeric_limits<double>::infinity()) ?
     std::numeric_limits<double>::infinity() :
     precision * kernel.normalizer2()(0,0) * kernel.normalizer2()(0,0);
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   std::vector<ErrorIndex> vec_residuals(nData); // [residual,index]
   std::vector<double> vec_residuals_(nData);
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   // Possible sampling indices [0,..,nData] (will change in the optimization phase)
   std::vector<size_t> vec_index(nData);
   std::iota(vec_index.begin(), vec_index.end(), 0);
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   // Precompute log combi
   const double loge0 = log10((double)kernel.getMaximumNbModels() * (nData-sizeSample));
   std::vector<float> vec_logc_n, vec_logc_k;
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   makelogcombi(sizeSample, nData, vec_logc_k, vec_logc_n);
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   // Output parameters
   double minNFA = std::numeric_limits<double>::infinity();
   double errorMax = std::numeric_limits<double>::infinity();
@@ -179,24 +189,30 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
   size_t nIterReserve = nIter/10;
   nIter -= nIterReserve;
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   bool bACRansacMode = (precision == std::numeric_limits<double>::infinity());
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   // Main estimation loop.
   for(std::size_t iter = 0; iter < nIter; ++iter)
   {
     std::vector<std::size_t> vec_sample(sizeSample); // Sample indices
+      ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
     if (bACRansacMode)
       uniformSample(sizeSample, vec_index, vec_sample); // Get random sample
     else
       uniformSample(sizeSample, nData, vec_sample); // Get random sample
 
+    ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
     std::vector<typename Kernel::ModelT> vec_models; // Up to max_models solutions
     kernel.fit(vec_sample, vec_models);
 
+    ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
     // Evaluate models
     bool better = false;
     for (std::size_t k = 0; k < vec_models.size(); ++k)
     {
+        ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
       // Residuals computation and ordering
       kernel.errors(vec_models[k], vec_residuals_);
 
@@ -211,8 +227,10 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
         if (nInlier > 2.5 * sizeSample) // does the model is meaningful
           bACRansacMode = true;
       }
+      ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
       if (bACRansacMode)
       {
+          ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
         for (size_t i = 0; i < nData; ++i)
         {
           const double error = vec_residuals_[i];
@@ -220,6 +238,7 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
         }
         std::sort(vec_residuals.begin(), vec_residuals.end());
 
+        ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
         // Most meaningful discrimination inliers/outliers
         const ErrorIndex best = bestNFA(
           sizeSample,
@@ -231,8 +250,10 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
           vec_logc_k,
           kernel.multError());
 
+        ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
         if (best.first < minNFA /*&& vec_residuals[best.second-1].first < errorMax*/)
         {
+            ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
           // A better model was found
           better = true;
           minNFA = best.first;
@@ -252,11 +273,13 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
         }
       } //if(bACRansacMode)
     } //for(size_t k...
-    
+
+    ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
     // Early exit test -> no meaningful model found after nIterReserve*2 iterations
     if (!bACRansacMode && iter > nIterReserve*2)
       break;
 
+    ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
     // ACRANSAC optimization: draw samples among best set of inliers so far
     if (bACRansacMode && ((better && minNFA<0) || (iter+1==nIter && nIterReserve)))
     {
@@ -277,11 +300,14 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
         }
       }
     }
+    ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   }
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   if(minNFA >= 0)
     vec_inliers.clear();
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   if (!vec_inliers.empty())
   {
     if (model)
@@ -289,6 +315,7 @@ std::pair<double, double> ACRANSAC(const Kernel& kernel,
     errorMax = kernel.unormalizeError(errorMax);
   }
 
+  ALICEVISION_LOG_DEBUG("ACRANSAC:  " << __LINE__);
   return std::make_pair(errorMax, minNFA);
 }
 
