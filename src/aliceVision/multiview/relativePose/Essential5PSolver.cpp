@@ -9,6 +9,9 @@
 #include "Essential5PSolver.hpp"
 #include <aliceVision/multiview/epipolarEquation.hpp>
 
+#include <aliceVision/system/Logger.hpp>
+
+
 namespace aliceVision {
 namespace multiview {
 namespace relativePose {
@@ -160,22 +163,28 @@ Mat fivePointsPolynomialConstraints(const Mat& EBasis)
 
 void Essential5PSolver::solve(const Mat& x1, const Mat& x2, std::vector<robustEstimation::Mat3Model>& models) const
 {
+    ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   assert(2 == x1.rows());
   assert(5 <= x1.cols());
   assert(x1.rows() == x2.rows());
   assert(x1.cols() == x2.cols());
 
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   // step 1: Nullspace Extraction.
   const Eigen::Matrix<double, 9, 4> EBasis = fivePointsNullspaceBasis(x1, x2);
 
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   // step 2: Constraint Expansion.
   const Eigen::Matrix<double, 10, 20> EConstraints = fivePointsPolynomialConstraints(EBasis);
 
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   // step 3: Gauss-Jordan Elimination (done thanks to a LU decomposition).
   typedef Eigen::Matrix<double, 10, 10> Mat10;
   Eigen::FullPivLU<Mat10> c_lu(EConstraints.block<10, 10>(0, 0));
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   const Mat10 M = c_lu.solve(EConstraints.block<10, 10>(0, 10));
 
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   // for next steps we follow the matlab code given in Stewenius et al [1].
   // build action matrix.
   const Mat10& B = M.topRightCorner<10,10>();
@@ -186,22 +195,28 @@ void Essential5PSolver::solve(const Mat& x1, const Mat& x2, std::vector<robustEs
   At.row(5) = B.row(7);
   At(6,0) = At(7,1) = At(8,3) = At(9,6) = -1;
 
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   Eigen::EigenSolver<Mat10> eigensolver(At);
   const auto& eigenvectors = eigensolver.eigenvectors();
   const auto& eigenvalues = eigensolver.eigenvalues();
 
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
   // build essential matrices for the real solutions.
   models.reserve(10);
   for(int s = 0; s < 10; ++s)
   {
+      ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
     // only consider real solutions.
     if(eigenvalues(s).imag() != 0)
       continue;
 
+    ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
     Mat3 E;
-    Eigen::Map<Vec9 >(E.data()) = EBasis * eigenvectors.col(s).tail<4>().real();
+    Eigen::Map<Vec9>(E.data()) = EBasis * eigenvectors.col(s).tail<4>().real();
+    ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
     models.emplace_back(E.transpose());
   }
+  ALICEVISION_LOG_DEBUG("Essential5PSolver::solve:  " << __LINE__);
 }
 
 }  // namespace relativePose

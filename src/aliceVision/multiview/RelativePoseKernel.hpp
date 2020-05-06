@@ -138,10 +138,13 @@ public:
 
   void fit(const std::vector<std::size_t>& samples, std::vector<ModelT_>& models) const override
   {
+    ALICEVISION_LOG_DEBUG("RelativePoseKernel_K::fit:  " << __LINE__);
     const Mat x1 = ExtractColumns(_x1k, samples);
     const Mat x2 = ExtractColumns(_x2k, samples);
 
+    ALICEVISION_LOG_DEBUG("RelativePoseKernel_K::fit:  " << __LINE__);
     KernelBase::KernelBase::_kernelSolver.solve(x1, x2, models);
+    ALICEVISION_LOG_DEBUG("RelativePoseKernel_K::fit:  " << __LINE__);
   }
 
   double error(std::size_t sample, const ModelT_& model) const override
