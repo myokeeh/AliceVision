@@ -5,6 +5,11 @@
 // v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 
+#define BOOST_TEST_MODULE SEQUENTIAL_SFM
+
+#include <boost/test/unit_test.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
+
 #include <aliceVision/feature/imageDescriberCommon.hpp>
 #include <aliceVision/sfm/utils/statistics.hpp>
 #include <aliceVision/sfm/utils/syntheticScene.hpp>
@@ -14,10 +19,6 @@
 #include <cstdio>
 #include <iostream>
 
-#define BOOST_TEST_MODULE SEQUENTIAL_SFM
-
-#include <boost/test/unit_test.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
 
 using namespace aliceVision;
 using namespace aliceVision::camera;
