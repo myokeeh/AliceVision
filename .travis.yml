@@ -91,7 +91,7 @@ script:
   - make install -j 2 VERBOSE=1
   - export OMP_NUM_THREADS=2
 # Perform unit tests only on GCC builds
-  - if [ "$CC" = "gcc" ]; then make test; fi
+  - if [ "$CC" = "gcc" ]; then make test -j1; fi
   - mkdir -p ${ALICEVISION_BUILD_AS3RDPARTY}
   - cd ${ALICEVISION_BUILD_AS3RDPARTY}
   - cmake -DCMAKE_PREFIX_PATH:PATH="${ALICEVISION_INSTALL};${DEPS_INSTALL_PATH}" ${ALICEVISION_SAMPLE_AS3RDPARTY}
